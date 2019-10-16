@@ -20,7 +20,56 @@ function makeTable(){
         for(var i = 0; i < res.length; i++){
             console.log(res[i].item_id + " || " + res[i].product_name + " || " + res[i].department_name + " || " + res[i].price + " || " + res[i].stock_quantity + "\n");
         }
-        // promptCustomer(res);
+        promptCustomer(res);
+    })
+}
+
+function promptCustomer(res){
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'choice',
+            message: 'What item would you like to purchase? (Type Q to exit)'
+        }
+    ]).then(function(answer){
+        var correct = false;
+        if(answer.choice.toUpperCase()=="Q"){
+            process.exit();
+        }
+        for(var i = 0; i < res.length; i++){
+            if(res[i].product_name==answer.choice){
+                correct = true;
+                var product = answer.choice;
+                var price = res[i].price;
+                var id = i;
+                inquirer.prompt({
+                    type: 'input',
+                    name: 'quantity',
+                    message: 'How many would you like to buy?',
+                    validate: function(value){
+                        if(isNaN(value)==false){
+                            return true;
+                        } else{
+                            return false;
+                        }
+                    }
+                }).then(function(answer){
+                    if((res[id].stock_quantity-answer.quantity) > 0){
+                        connection.query("UPDATE products SET stock_quantity='"+(res[id].stock_quantity-answer.quantity)+"' WHERE product_name= '"+ product+"'", function(err, res2){
+                            console.log('Product purchased for $' + (price*answer.quantity) + '!');
+                            makeTable();
+                        })
+                    } else{
+                        console.log("Insufficient quantity!");
+                        promptCustomer(res);
+                    }
+                })
+            }
+        }
+        if(i==res.length && correct==false){
+            console.log("Not a valid selection!");
+            promptCustomer(res);
+        }
     })
 }
 
