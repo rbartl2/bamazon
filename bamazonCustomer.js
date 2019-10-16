@@ -56,7 +56,9 @@ function promptCustomer(res){
                 }).then(function(answer){
                     if((res[id].stock_quantity-answer.quantity) > 0){
                         connection.query("UPDATE products SET stock_quantity='"+(res[id].stock_quantity-answer.quantity)+"' WHERE product_name= '"+ product+"'", function(err, res2){
+                            console.log('************************************');
                             console.log('Product purchased for $' + (price*answer.quantity) + '!');
+                            console.log('************************************');
                             makeTable();
                         })
                     } else{
@@ -67,7 +69,9 @@ function promptCustomer(res){
             }
         }
         if(i==res.length && correct==false){
+            console.log('************************************');
             console.log("Not a valid selection!");
+            console.log('************************************');
             promptCustomer(res);
         }
     })
